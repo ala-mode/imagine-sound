@@ -5,11 +5,12 @@ fn main() {
     let mut synthesizer = Synth::new();
     let num_samples = 88_200;
     let sample_rate = 44_100.0;
+    let freq = 220.0;
     // TODO make individual tests for diff waveforms instead of main
     synthesizer.add_waveform(Box::new(SineWave));
     //synthesizer.add_waveform(Box::new(SquareWave));
     //synthesizer.add_waveform(Box::new(SawtoothWave));
-    let samples = synthesizer.generate_samples(num_samples, sample_rate);
+    let samples = synthesizer.generate_samples(num_samples, sample_rate, freq);
 
     // Print the first 100 samples for demonstration
     for (i, sample) in samples.iter().take(44100).enumerate() {
@@ -18,7 +19,6 @@ fn main() {
         }
     }
 
-    /*
     // export
     let spec = WavSpec {
         channels: 1,
@@ -36,12 +36,10 @@ fn main() {
             .expect("sample to write into writer")
     }
     writer.finalize().expect("writer to finalize");
-    */
 }
 
 trait Waveform {
-    fn sample(&self, t: f32) -> f32;
-    // add frequency here?
+    fn sample(&self, t: f32, f: f32) -> f32;
 }
 
 struct SineWave;
@@ -53,17 +51,17 @@ struct SawtoothWave;
 // struct TriangeWave;
 
 impl Waveform for SineWave {
-    fn sample(&self, t: f32) -> f32 {
+    fn sample(&self, t: f32, f: f32) -> f32 {
         // 2pi radians = circumference
-        (t * 2.0 * std::f32::consts::PI).sin()
+        ((f * t) * 2.0 * std::f32::consts::PI).sin()
     }
 }
 
 impl Waveform for SquareWave {
-    fn sample(&self, t: f32) -> f32 {
-        if SineWave.sample(t) > 0.0 {
+    fn sample(&self, t: f32, f: f32) -> f32 {
+        if SineWave.sample(t, f) > 0.0 {
             1.0
-        } else if SineWave.sample(t) == 0.0 {
+        } else if SineWave.sample(t, f) == 0.0 {
             0.0
         } else {
             // if less than 0
@@ -73,9 +71,9 @@ impl Waveform for SquareWave {
 }
 
 impl Waveform for SawtoothWave {
-    fn sample(&self, t: f32) -> f32 {
+    fn sample(&self, t: f32, f: f32) -> f32 {
         // very nearly TTOMO
-        2.0 * (t - t.floor()) - 1.0
+        2.0 * ((t * f) - (t * f).floor()) - 1.0
     }
 }
 
@@ -95,14 +93,14 @@ impl Synth {
         self.waveforms.push(waveform)
     }
 
-    fn generate_samples(&self, num_samples: usize, samplerate: f32) -> Vec<f32> {
+    fn generate_samples(&self, num_samples: usize, samplerate: f32, freq: f32) -> Vec<f32> {
         let mut internal_samples = vec![0.0; num_samples];
         //zip for non usize enumerate()
         for (i, sam) in internal_samples.iter_mut().enumerate() {
             let t = i as f32 / samplerate;
             for waveform in &self.waveforms {
                 // measure sample for waveform, then divide result by number of waveforms to mix and avoid clipping
-                *sam += (waveform.sample(t) / self.waveforms.len() as f32);
+                *sam += (waveform.sample(t, freq) / self.waveforms.len() as f32);
             }
         }
         internal_samples

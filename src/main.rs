@@ -1,3 +1,5 @@
+use std::fs::File;
+
 fn main() {
     let mut synthesizer = Synth::new();
     let num_samples = 88_200;
@@ -8,7 +10,7 @@ fn main() {
     let samples = synthesizer.generate_samples(num_samples, sample_rate);
 
     // Print the first 100 samples for demonstration
-    for (i, sample) in samples.iter().take(100).enumerate() {
+    for (i, sample) in samples.iter().take(1000).enumerate() {
         println!("Sample {}: {}", i, sample);
     }
 }
@@ -80,4 +82,11 @@ impl Synth {
         }
         internal_samples
     }
+
+    /*
+    fn write_file(readied_samples: Vec<f32>) {
+        let mut output = File::create("rusty.wav");
+        output.write
+    }
+    */
 }

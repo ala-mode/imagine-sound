@@ -1,4 +1,5 @@
-use std::fs::File;
+use hound::{SampleFormat, WavSpec, WavWriter};
+//use std::fs::File;
 
 fn main() {
     let mut synthesizer = Synth::new();
@@ -6,14 +7,36 @@ fn main() {
     let sample_rate = 44_100.0;
     // TODO make individual tests for diff waveforms instead of main
     synthesizer.add_waveform(Box::new(SineWave));
-    synthesizer.add_waveform(Box::new(SquareWave));
-    synthesizer.add_waveform(Box::new(SawtoothWave));
+    //synthesizer.add_waveform(Box::new(SquareWave));
+    //synthesizer.add_waveform(Box::new(SawtoothWave));
     let samples = synthesizer.generate_samples(num_samples, sample_rate);
 
     // Print the first 100 samples for demonstration
-    for (i, sample) in samples.iter().take(1000).enumerate() {
-        println!("Sample {}: {}", i, sample);
+    for (i, sample) in samples.iter().take(44100).enumerate() {
+        if i % 4000 == 0 {
+            println!("Sample {}: {}", i, sample);
+        }
     }
+
+    /*
+    // export
+    let spec = WavSpec {
+        channels: 1,
+        sample_rate: 44100,
+        bits_per_sample: 16,
+        sample_format: SampleFormat::Int,
+    };
+
+    let mut writer = WavWriter::create("test.wav", spec).unwrap();
+    for s in samples {
+        // multiply by 32767 to convert to 16 bit PCM
+        let converted: i16 = (s * 32767 as f32).floor() as i16;
+        writer
+            .write_sample(converted)
+            .expect("sample to write into writer")
+    }
+    writer.finalize().expect("writer to finalize");
+    */
 }
 
 trait Waveform {

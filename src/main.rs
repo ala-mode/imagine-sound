@@ -1,14 +1,14 @@
 fn main() {
     let mut synthesizer = Synth::new();
-    let num_samples = 88_000;
-    let sample_rate = 44_000.0;
+    let num_samples = 88_200;
+    let sample_rate = 44_100.0;
     let samples = synthesizer.generate_samples(num_samples, sample_rate);
 
     synthesizer.add_waveform(Box::new(SineWave));
     synthesizer.add_waveform(Box::new(SquareWave));
     synthesizer.add_waveform(Box::new(SawtoothWave));
 
-    // Print the first 10 samples for demonstration
+    // Print the first 100 samples for demonstration
     for (i, sample) in samples.iter().take(100).enumerate() {
         println!("Sample {}: {}", i, sample);
     }

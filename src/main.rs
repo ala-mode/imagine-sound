@@ -5,11 +5,11 @@ fn main() {
     let mut synthesizer = Synth::new();
     let num_samples = 88_200;
     let sample_rate = 44_100.0;
-    let freq = 220.0;
+    let freq = 110.0;
     // TODO make individual tests for diff waveforms instead of main
     synthesizer.add_waveform(Box::new(SineWave));
-    //synthesizer.add_waveform(Box::new(SquareWave));
-    //synthesizer.add_waveform(Box::new(SawtoothWave));
+    synthesizer.add_waveform(Box::new(SquareWave));
+    synthesizer.add_waveform(Box::new(SawtoothWave));
     let samples = synthesizer.generate_samples(num_samples, sample_rate, freq);
 
     // Print the first 100 samples for demonstration

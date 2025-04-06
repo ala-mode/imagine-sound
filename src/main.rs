@@ -4,6 +4,7 @@ fn main() {
     let mut synthesizer = Synth::new();
     let num_samples = 88_200;
     let sample_rate = 44_100.0;
+    // TODO make individual tests for diff waveforms instead of main
     synthesizer.add_waveform(Box::new(SineWave));
     synthesizer.add_waveform(Box::new(SquareWave));
     synthesizer.add_waveform(Box::new(SawtoothWave));
@@ -42,6 +43,7 @@ impl Waveform for SquareWave {
         } else if SineWave.sample(t) == 0.0 {
             0.0
         } else {
+            // if less than 0
             -1.0
         }
     }
@@ -55,6 +57,7 @@ impl Waveform for SawtoothWave {
 }
 
 struct Synth {
+    // waveforms should include one or more oscillator (Waveform)
     waveforms: Vec<Box<dyn Waveform>>,
 }
 
@@ -76,9 +79,8 @@ impl Synth {
             let t = i as f32 / samplerate;
             for waveform in &self.waveforms {
                 // measure sample for waveform, then divide result by number of waveforms to mix and avoid clipping
-                *sam += waveform.sample(t) / self.waveforms.len() as f32;
+                *sam += (waveform.sample(t) / self.waveforms.len() as f32);
             }
-            // *sam /= self.waveforms.len() as f32; // average (mix) samples
         }
         internal_samples
     }

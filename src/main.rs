@@ -2,14 +2,14 @@ use hound::{SampleFormat, WavSpec, WavWriter};
 //use std::fs::File;
 
 fn main() {
-    let mut synthesizer = Synth::new();
+    let mut synthesizer = Patch::new();
     let num_samples = 88_200;
     let sample_rate = 44_100.0;
     let freq = 110.0;
     // TODO make individual tests for diff waveforms instead of main
-    synthesizer.add_waveform(Box::new(SineWave));
+    //synthesizer.add_waveform(Box::new(SineWave));
     synthesizer.add_waveform(Box::new(SquareWave));
-    synthesizer.add_waveform(Box::new(SawtoothWave));
+    //synthesizer.add_waveform(Box::new(SawtoothWave));
     let samples = synthesizer.generate_samples(num_samples, sample_rate, freq);
 
     // Print the first 100 samples for demonstration
@@ -77,14 +77,15 @@ impl Waveform for SawtoothWave {
     }
 }
 
-struct Synth {
+struct Patch {
     // waveforms should include one or more oscillator (Waveform)
     waveforms: Vec<Box<dyn Waveform>>,
 }
+// TODO make Synth with multiple patches to form a bank of "voices"
 
-impl Synth {
+impl Patch {
     fn new() -> Self {
-        Synth {
+        Patch {
             waveforms: Vec::new(),
         }
     }
